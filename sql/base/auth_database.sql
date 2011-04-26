@@ -133,7 +133,7 @@ CREATE TABLE `uptime` (
   `startstring` varchar(64) NOT NULL DEFAULT '',
   `uptime` bigint(20) unsigned NOT NULL DEFAULT '0',
   `maxplayers` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `revision` varchar(255) NOT NULL DEFAULT 'SkuFireEMU',
+  `revision` varchar(255) NOT NULL DEFAULT 'SkyFireEMU',
   PRIMARY KEY (`realmid`,`starttime`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Uptime system';
 
