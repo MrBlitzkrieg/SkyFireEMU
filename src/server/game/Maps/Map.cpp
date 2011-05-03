@@ -509,6 +509,18 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
 
 void Map::Update(const uint32 &t_diff)
 {
+    /// update worldsessions for existing players
+    for(m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
+    {
+        Player* plr = m_mapRefIter->getSource();
+        if(plr && plr->IsInWorld())
+        {
+            //plr->Update(t_diff);
+            WorldSession * pSession = plr->GetSession();
+            MapSessionFilter updater(pSession);
+           pSession->Update(t_diff, updater);
+        }
+    }
     /// update active cells around players and active objects
     resetMarkedCells();
 
@@ -2398,7 +2410,7 @@ void InstanceMap::CreateInstanceData(bool load)
     if (i_data != NULL)
         return;
 
-    InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(GetId());
+    InstanceTemplate const* mInstance = ObjectMgr::GetInstanceTemplate(GetId());
     if (mInstance)
     {
         i_script_id = mInstance->script_id;

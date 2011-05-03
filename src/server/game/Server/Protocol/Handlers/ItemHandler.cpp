@@ -292,7 +292,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
 
     sLog->outDetail("STORAGE: Item Query = %u", item);
 
-    ItemPrototype const *pProto = sObjectMgr->GetItemPrototype(item);
+    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(item);
     if (pProto)
     {
         std::string Name        = pProto->Name1;
@@ -523,7 +523,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     Item *pItem = _player->GetItemByGuid(itemguid);
@@ -628,7 +628,7 @@ void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     Item *pItem = _player->GetItemFromBuyBackSlot(slot);
@@ -752,11 +752,11 @@ void WorldSession::SendListInventory(uint64 vendorguid)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    if (pCreature->hasUnitState(UNIT_STAT_MOVING))
+    if (pCreature->HasUnitState(UNIT_STAT_MOVING))
         pCreature->StopMoving();
 
     VendorItemData const* vItems = pCreature->GetVendorItems();
@@ -785,7 +785,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
     {
         if (VendorItem const* crItem = vItems->GetItem(vendorslot))
         {
-            if (ItemPrototype const *pProto = sObjectMgr->GetItemPrototype(crItem->item))
+            if (ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(crItem->item))
             {
                 if ((pProto->AllowableClass & _player->getClassMask()) == 0 && pProto->Bonding == BIND_WHEN_PICKED_UP && !_player->isGameMaster())
                     continue;

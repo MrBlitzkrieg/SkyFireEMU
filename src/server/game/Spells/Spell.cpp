@@ -1440,7 +1440,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
             }
 
             // assisting case, healing and resurrection
-            if (unit->hasUnitState(UNIT_STAT_ATTACK_PLAYER))
+            if (unit->HasUnitState(UNIT_STAT_ATTACK_PLAYER))
             {
                 m_caster->SetContestedPvP();
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -3188,7 +3188,10 @@ void Spell::cast(bool skipCheck)
     // now that we've done the basic check, now run the scripts
     // should be done before the spell is actually executed
     if (Player *playerCaster = m_caster->ToPlayer())
+    {
         sScriptMgr->OnPlayerSpellCast(playerCaster, this, skipCheck);
+        sScriptMgr->OnPlayerSpellCastWithProto(playerCaster, this->GetSpellInfo());
+    }
 
     SetExecutedCurrently(true);
 
@@ -3379,8 +3382,8 @@ void Spell::cast(bool skipCheck)
         m_spellState = SPELL_STATE_DELAYED;
         SetDelayStart(0);
 
-        if (m_caster->hasUnitState(UNIT_STAT_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
-            m_caster->clearUnitState(UNIT_STAT_CASTING);
+        if (m_caster->HasUnitState(UNIT_STAT_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
+            m_caster->ClearUnitState(UNIT_STAT_CASTING);
     }
     else
     {
@@ -3754,8 +3757,8 @@ void Spell::finish(bool ok)
     if (IsChanneledSpell(m_spellInfo))
         m_caster->UpdateInterruptMask();
 
-    if (m_caster->hasUnitState(UNIT_STAT_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
-        m_caster->clearUnitState(UNIT_STAT_CASTING);
+    if (m_caster->HasUnitState(UNIT_STAT_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
+        m_caster->ClearUnitState(UNIT_STAT_CASTING);
 
     // Unsummon summon as possessed creatures on spell cancel
     if (IsChanneledSpell(m_spellInfo) && m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -3899,7 +3902,7 @@ void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 ca
              for (int8 x=0;x < 3;x++)
                  if (spellInfo->EffectItemType[x])
                      item = spellInfo->EffectItemType[x];
-             ItemPrototype const *pProto = sObjectMgr->GetItemPrototype(item);
+             ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(item);
              if (pProto && pProto->ItemLimitCategory)
                  data << uint32(pProto->ItemLimitCategory);
              break;
@@ -4079,7 +4082,7 @@ void Spell::WriteAmmoToPacket(WorldPacket * data)
                 uint32 ammoID = m_caster->ToPlayer()->GetUInt32Value(PLAYER_AMMO_ID);
                 if (ammoID)
                 {
-                    ItemPrototype const *pProto = sObjectMgr->GetItemPrototype(ammoID);
+                    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(ammoID);
                     if (pProto)
                     {
                         ammoDisplayID = pProto->DisplayInfoID;
@@ -4895,8 +4898,8 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (!m_IsTriggeredSpell && m_spellInfo->TargetAuraState && !target->HasAuraState(AuraState(m_spellInfo->TargetAuraState), m_spellInfo, m_caster))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
-            // Not allow casting on flying player
-            if (target->hasUnitState(UNIT_STAT_UNATTACKABLE))
+            // Not allow casting on flying player or on vehicle player (if caster isnt vehicle)
+            if (target->HasUnitState(UNIT_STAT_IN_FLIGHT) || (target->HasUnitState(UNIT_STAT_ONVEHICLE) && target->GetVehicleBase() != m_caster))
                 return SPELL_FAILED_BAD_TARGETS;
 
             if (!m_IsTriggeredSpell && !m_caster->canSeeOrDetect(target))
@@ -5255,7 +5258,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
                         m_caster->RemoveMovementImpairingAuras();
                 }
-                if (m_caster->hasUnitState(UNIT_STAT_ROOT))
+                if (m_caster->HasUnitState(UNIT_STAT_ROOT))
                     return SPELL_FAILED_ROOTED;
                 break;
             }
@@ -5456,7 +5459,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
                 Unit* target = m_targets.getUnitTarget();
-                if (m_caster == target && m_caster->hasUnitState(UNIT_STAT_ROOT))
+                if (m_caster == target && m_caster->HasUnitState(UNIT_STAT_ROOT))
                 {
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         return SPELL_FAILED_ROOTED;
@@ -5592,7 +5595,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // Ignore map check if spell have AreaId. AreaId already checked and this prevent special mount spells
                 bool AllowMount = !m_caster->GetMap()->IsDungeon() || m_caster->GetMap()->IsBattlegroundOrArena();
-                InstanceTemplate const *it = sObjectMgr->GetInstanceTemplate(m_caster->GetMapId());
+                InstanceTemplate const *it = ObjectMgr::GetInstanceTemplate(m_caster->GetMapId());
                 if (it)
                     AllowMount = it->allowMount;
                 if (m_caster->GetTypeId() == TYPEID_PLAYER && !AllowMount && !m_IsTriggeredSpell && !m_spellInfo->AreaGroupId)
@@ -5683,7 +5686,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
         return SPELL_FAILED_CASTER_DEAD;
 
-    if (m_caster->hasUnitState(UNIT_STAT_CASTING) && !m_IsTriggeredSpell)              //prevent spellcast interruption by another spellcast
+    if (m_caster->HasUnitState(UNIT_STAT_CASTING) && !m_IsTriggeredSpell)              //prevent spellcast interruption by another spellcast
         return SPELL_FAILED_SPELL_IN_PROGRESS;
     if (m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo))
         return SPELL_FAILED_AFFECTING_COMBAT;
@@ -5762,8 +5765,21 @@ SpellCastResult Spell::CheckCasterAuras() const
     SpellCastResult prevented_reason = SPELL_CAST_OK;
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
     uint32 unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);     // Get unit state
-    if (unitflag & UNIT_FLAG_STUNNED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED))
-        prevented_reason = SPELL_FAILED_STUNNED;
+    if (unitflag & UNIT_FLAG_STUNNED)
+    {
+        if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED)
+        {
+            // Sap and Banish isn't considerable stun effect
+            Unit::AuraApplicationMap const& auras = m_caster->GetAppliedAuras();
+            for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+            {
+                Aura const * aura = itr->second->GetBase();
+                if (aura->GetSpellProto()->Mechanic == MECHANIC_BANISH || aura->GetSpellProto()->Mechanic == MECHANIC_SAPPED)
+                    prevented_reason = SPELL_FAILED_STUNNED;
+            }
+        }
+        else prevented_reason = SPELL_FAILED_STUNNED;
+    }
     else if (unitflag & UNIT_FLAG_CONFUSED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_CONFUSED))
         prevented_reason = SPELL_FAILED_CONFUSED;
     else if (unitflag & UNIT_FLAG_FLEEING && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_FEARED))
@@ -6056,7 +6072,7 @@ SpellCastResult Spell::CheckItems()
     // if not item target then required item must be equipped
     else
     {
-        if (m_caster->GetTypeId() == TYPEID_PLAYER && !m_caster->ToPlayer()->HasItemFitToSpellReqirements(m_spellInfo))
+        if (m_caster->GetTypeId() == TYPEID_PLAYER && !m_caster->ToPlayer()->HasItemFitToSpellRequirements(m_spellInfo))
             return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
     }
 
@@ -6170,7 +6186,7 @@ SpellCastResult Spell::CheckItems()
                     uint8 msg = p_caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1);
                     if (msg != EQUIP_ERR_OK)
                     {
-                        ItemPrototype const *pProto = sObjectMgr->GetItemPrototype(m_spellInfo->EffectItemType[i]);
+                        ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(m_spellInfo->EffectItemType[i]);
                         // TODO: Needs review
                         if (pProto && !(pProto->ItemLimitCategory))
                         {
@@ -6374,7 +6390,7 @@ SpellCastResult Spell::CheckItems()
                             return SPELL_FAILED_NO_AMMO;
                         }
 
-                        ItemPrototype const *ammoProto = sObjectMgr->GetItemPrototype(ammo);
+                        ItemPrototype const *ammoProto = ObjectMgr::GetItemPrototype(ammo);
                         if (!ammoProto)
                             return SPELL_FAILED_NO_AMMO;
 
@@ -6413,7 +6429,7 @@ SpellCastResult Spell::CheckItems()
             case SPELL_EFFECT_CREATE_MANA_GEM:
             {
                  uint32 item_id = m_spellInfo->EffectItemType[i];
-                 ItemPrototype const *pProto = sObjectMgr->GetItemPrototype(item_id);
+                 ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(item_id);
 
                  if (!pProto)
                      return SPELL_FAILED_ITEM_AT_MAX_CHARGES;

@@ -2274,7 +2274,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     if (!IsInWorld())
         return NULL;
 
-    GameObjectInfo const* goinfo = sObjectMgr->GetGameObjectInfo(entry);
+    GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(entry);
     if (!goinfo)
     {
         sLog->outErrorDb("Gameobject template %u not found in database!", entry);
@@ -2382,7 +2382,7 @@ namespace Trinity
 
                 float x,y,z;
 
-                if (!c->isAlive() || c->hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) ||
+                if (!c->isAlive() || c->HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) ||
                     !c->GetMotionMaster()->GetDestination(x,y,z))
                 {
                     x = c->GetPositionX();

@@ -200,7 +200,7 @@ time_t InstanceSave::GetResetTimeForDB()
 // to cache or not to cache, that is the question
 InstanceTemplate const* InstanceSave::GetTemplate()
 {
-    return sObjectMgr->GetInstanceTemplate(m_mapid);
+    return ObjectMgr::GetInstanceTemplate(m_mapid);
 }
 
 MapEntry const* InstanceSave::GetMapEntry()
@@ -258,6 +258,8 @@ void InstanceSaveManager::_DelHelper(const char *fields, const char *table, cons
 
 void InstanceSaveManager::CleanupAndPackInstances()
 {
+    uint32 oldMSTime = getMSTime();
+
     // load reset times and clean expired instances
     sInstanceSaveMgr->LoadResetTimes();
 
@@ -290,13 +292,14 @@ void InstanceSaveManager::CleanupAndPackInstances()
     WorldDatabase.DirectExecute("UPDATE gameobject_respawn      AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
 
     // Update instance too
-    CharacterDatabase.Query("UPDATE instance SET id = newid");
+    CharacterDatabase.DirectExecute("UPDATE instance SET id = newid");
 
     // Finally drop the no longer needed column
-    //CharacterDatabase.Query("ALTER TABLE instance DROP COLUMN newid");
+    CharacterDatabase.DirectExecute("ALTER TABLE instance DROP COLUMN newid");
     
     // Bake some cookies for click
-    sLog->outString(">> Cleaned up and packed instances");
+    sLog->outString(">> Cleaned up and packed instances in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
 }
 
 void InstanceSaveManager::LoadResetTimes()

@@ -64,7 +64,7 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     SendTabardVendorActivate(guid);
@@ -93,7 +93,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     SendShowBank(guid);
@@ -134,7 +134,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // trainer list loaded at check;
@@ -212,7 +212,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if (!unit->isCanTrainingOf(_player,true))
@@ -283,7 +283,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recv_data)
 
     GetPlayer()->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
     // remove fake death
-    //if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    //if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
     //    GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if (unit->isArmorer() || unit->isCivilian() || unit->isQuestGiver() || unit->isServiceProvider())
@@ -338,7 +338,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if (!code.empty())
@@ -369,7 +369,7 @@ void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     SendSpiritResurrect();
@@ -424,7 +424,7 @@ void WorldSession::HandleBinderActivateOpcode(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     SendBindPoint(unit);
@@ -464,7 +464,7 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recv_data)
         return;
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // remove mounts this fix bug where getting pet from stable while mounted deletes pet.
@@ -557,7 +557,7 @@ void WorldSession::HandleStableChangeSlot(WorldPacket & recv_data)
     }
     
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     Pet* pet = _player->GetPet();
@@ -600,7 +600,7 @@ void WorldSession::HandleStableChangeSlotCallback(QueryResult result, uint8 new_
         return;
     }
 
-    CreatureInfo const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature_id);
+    CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(creature_id);
     if (!creatureInfo || !creatureInfo->isTameable(_player->CanTameExoticPets()))
     {
         // if problem in exotic pet
@@ -634,7 +634,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // reputation discount

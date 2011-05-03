@@ -53,14 +53,6 @@ enum SpellCategories
     SPELLCATEGORY_DRINK            = 59,
 };
 
-enum SpellDisableTypes
-{
-    SPELL_DISABLE_PLAYER            = 0x1,
-    SPELL_DISABLE_CREATURE          = 0x2,
-    SPELL_DISABLE_PET               = 0x4,
-    SPELL_DISABLE_DEPRECATED_SPELL  = 0x8
-};
-
 enum SpellEffectTargetTypes
 {
     SPELL_REQUIRE_NONE,
@@ -949,8 +941,7 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
 class SpellMgr
 {
-    // Constructors
-    public:
+        friend class ACE_Singleton<SpellMgr, ACE_Null_Mutex>;
         SpellMgr();
         ~SpellMgr();
 
@@ -1422,7 +1413,6 @@ class SpellMgr
 
     // Modifiers
     public:
-        static SpellMgr& Instance();
 
         // Loading data at server startup
         //void LoadSpellRanks();

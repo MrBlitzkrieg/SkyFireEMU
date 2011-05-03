@@ -65,7 +65,7 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_LOAD_PLAYER_AURAS, "SELECT caster_guid, spell, effect_mask, recalculate_mask, stackcount, amount0, amount1, amount2, "
         "base_amount0, base_amount1, base_amount2, maxduration, remaintime, remaincharges FROM character_aura WHERE guid = ?", true);
     PrepareStatement(CHAR_LOAD_PLAYER_SPELLS, "SELECT spell, active, disabled FROM character_spell WHERE guid = ?", true);
-    PrepareStatement(CHAR_LOAD_PLAYER_QUESTSTATUS, "SELECT quest, status, rewarded, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, "
+    PrepareStatement(CHAR_LOAD_PLAYER_QUESTSTATUS, "SELECT quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, "
         "itemcount1, itemcount2, itemcount3, itemcount4 FROM character_queststatus WHERE guid = ?", true);
     PrepareStatement(CHAR_LOAD_PLAYER_DAILYQUESTSTATUS, "SELECT quest, time FROM character_queststatus_daily WHERE guid = ?", true);
     PrepareStatement(CHAR_LOAD_PLAYER_WEKLYQUESTSTATUS, "SELECT quest FROM character_queststatus_weekly WHERE guid = ?", true);
@@ -94,6 +94,8 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_LOAD_PLAYER_RANDOMBG, "SELECT guid FROM character_battleground_random WHERE guid = ?", true);
     PrepareStatement(CHAR_LOAD_PLAYER_ARENASTATS, "SELECT slot, personal_rating, matchmaker_rating FROM character_arena_stats WHERE guid = ? ORDER BY slot ASC", true);
     PrepareStatement(CHAR_LOAD_PLAYER_BANNED, "SELECT guid FROM character_banned WHERE guid = ? AND active = 1", true);
+    PrepareStatement(CHAR_LOAD_PLAYER_QUESTSTATUSREW, "SELECT quest FROM character_queststatus_rewarded WHERE guid = ?", true);
+    // End LoginQueryHolder content
 
     PrepareStatement(CHAR_LOAD_ACCOUNT_DATA, "SELECT type, time, data FROM account_data WHERE account = ?");
     PrepareStatement(CHAR_LOAD_PLAYER_MAILITEMS, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, item_guid, itemEntry, owner_guid FROM mail_items mi JOIN item_instance ii ON mi.item_guid = ii.guid WHERE mail_id = ?");
@@ -243,6 +245,13 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_CLEAN_GUILD_BANK_TABS, "DELETE FROM guild_bank_tab WHERE guildId NOT IN (SELECT guildid FROM guild)", true);
     PrepareStatement(CHAR_CLEAN_GUILD_BANK_RIGHTS, "DELETE FROM guild_bank_right WHERE guildId NOT IN (SELECT guildid FROM guild)", true);
     PrepareStatement(CHAR_CLEAN_GUILD_BANK_ITEMS, "DELETE FROM guild_bank_item WHERE guildId NOT IN (SELECT guildid FROM guild)", true);
+
+    // Chat channel handling
+    PrepareStatement(CHAR_LOAD_CHANNEL, "SELECT m_announce, m_ownership, m_password, BannedList FROM channels WHERE m_name = ? AND m_team = ?");
+    PrepareStatement(CHAR_ADD_CHANNEL, "INSERT INTO channels (m_name, m_team, last_used) VALUES (? , ?, UNIX_TIMESTAMP())");
+    PrepareStatement(CHAR_SET_CHANNEL, "UPDATE channels SET m_announce = ?, m_ownership = ?, m_password = ?, BannedList = ?, last_used = UNIX_TIMESTAMP() WHERE m_name = ? AND m_team = ?");
+    PrepareStatement(CHAR_SET_CHANNEL_USAGE, "UPDATE channels SET last_used = UNIX_TIMESTAMP() WHERE m_name = ? AND m_team = ?");
+    PrepareStatement(CHAR_CLEAN_CHANNEL, "DELETE FROM channels WHERE m_ownership = 1 AND (last_used + ?) < UNIX_TIMESTAMP()");
 
     // Equipmentsets
     PrepareStatement(CHAR_SET_EQUIP_SET, "UPDATE character_equipmentsets SET name=?, iconname=?, item0=?, item1=?, item2=?, item3=?, item4=?, item5=?, item6=?, item7=?, item8=?, item9=?, item10=?, item11=?, item12=?, item13=?, item14=?, item15=?, item16=?, item17=?, item18=? WHERE guid=? AND setguid=? AND setindex=?", true);

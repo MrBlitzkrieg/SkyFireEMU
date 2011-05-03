@@ -171,7 +171,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     PetType pet_type = PetType(fields[18].GetUInt8());
     if (pet_type == HUNTER_PET)
     {
-        CreatureInfo const* creatureInfo = sObjectMgr->GetCreatureTemplate(petentry);
+        CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(petentry);
         if (!creatureInfo || !creatureInfo->isTameable(owner->CanTameExoticPets()))
         {
             m_loading = false;
@@ -1054,6 +1054,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;
+                }
+				case 28017: // Bloodworms
+                {
+                    SetCreateHealth(4 * petlevel);
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - 30 - (petlevel / 4)) + m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f);
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel - 30 + (petlevel / 4)) + m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f);
                 }
             }
             break;
