@@ -77,7 +77,7 @@ void ExtractMapsFromMpq(uint32 build)
             }
             actualMPQ = WorldMPQ;
             not_found.push_back(map_ids[z].name);
-            printf("Extract %s (%d/%d) -- not found\n", map_ids[z].name, z+1, map_count);
+            printf("Extract %s (%d/%d) -- No map data found-> Skipped\n", map_ids[z].name, z+1, map_count);
             continue;
         }
         if(actualMPQ == WorldMPQ)
