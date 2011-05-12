@@ -1312,9 +1312,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                     m_caster->CastCustomSpell(unitTarget, 83301, &bp, NULL, NULL, true, 0);
                                 }
                                 if (m_caster->HasAura(12489)) // Improved Cone of Cold Rank 2
-                            {
-                                m_caster->CastCustomSpell(unitTarget, 83302, &bp, NULL, NULL, true, 0);
-                            }
+                                {
+                                    m_caster->CastCustomSpell(unitTarget, 83302, &bp, NULL, NULL, true, 0);
+                                }
                             }
                     }
                 case 1459: // Arcane Brilliance
